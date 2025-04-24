@@ -4,6 +4,8 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormFieldComponent } from '../../shared/components/form-field/form-field.component';
+import { RouterOutlet } from '@angular/router';
+import { PdfViewerComponent } from '../../shared/components/pdf-viewer/pdf-viewer.component';
 
 @Component({
   standalone: true,
@@ -15,7 +17,9 @@ import { FormFieldComponent } from '../../shared/components/form-field/form-fiel
     ReactiveFormsModule,
     MatSnackBarModule,
     MatProgressSpinnerModule,
-    FormFieldComponent
+    FormFieldComponent,
+    RouterOutlet,
+    PdfViewerComponent
   ]
 })
 export class DashboardComponent {}

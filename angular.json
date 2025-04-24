@@ -26,9 +26,15 @@
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
+              "src/assets",
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "**/*",
+                "input": "./node_modules/@nutrient-sdk/viewer/dist/nutrient-viewer-lib/",
+                "output": "./assets/nutrient-viewer-lib/"
               }
             ],
             "styles": [

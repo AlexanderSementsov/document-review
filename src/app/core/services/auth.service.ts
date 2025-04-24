@@ -1,11 +1,11 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { LoginReqDto } from '../../shared/interfaces/login-req.dto';
+import { LoginReqDto } from '../../shared/interfaces/user/login-req.dto';
 import { Observable } from 'rxjs';
-import { LoginResDto } from '../../shared/interfaces/login-res.dto';
+import { LoginResDto } from '../../shared/interfaces/user/login-res.dto';
 import { BACKEND_URL } from '../../shared/tokens/backend-url.token';
-import { UserResDto } from '../../shared/interfaces/user-res.dto';
-import { CreateUserDto } from '../../shared/interfaces/create-user.dto';
+import { UserResDto } from '../../shared/interfaces/user/user-res.dto';
+import { CreateUserDto } from '../../shared/interfaces/user/create-user.dto';
 
 @Injectable({
   providedIn: "root"

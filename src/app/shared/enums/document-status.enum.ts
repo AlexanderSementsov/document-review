@@ -1,7 +1,8 @@
 export enum DocumentStatus {
-  DRAFT = 'Draft',
-  PENDING = 'Pending',
-  APPROVED = 'Approved',
-  REJECTED = 'Rejected',
-  WITHDRAWN = 'Withdrawn'
+  DRAFT = 'DRAFT',
+  REVOKE = 'REVOKE',
+  READY_FOR_REVIEW = 'READY_FOR_REVIEW',
+  UNDER_REVIEW = 'UNDER_REVIEW',
+  APPROVED = 'APPROVED',
+  DECLINED = 'DECLINED'
 }

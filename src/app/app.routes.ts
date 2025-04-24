@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { authorizedGuard } from './core/guards/authorized.guard';
+import { dashboardRoutes } from './features/dashboard/dashboard.routes';
 
 export const routes: Routes = [
   {
@@ -18,8 +19,12 @@ export const routes: Routes = [
   {
     path: 'dashboard',
     canActivate: [authGuard],
+    loadChildren: () => Promise.resolve(dashboardRoutes)
+  },
+  {
+    path: 'server-unavailable',
     loadComponent: () =>
-      import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent)
+      import('./features/server-unavailable/server-unavailable.component').then(m => m.ServerUnavailableComponent)
   },
   {
     path: '',

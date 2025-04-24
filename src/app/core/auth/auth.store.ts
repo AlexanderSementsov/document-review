@@ -1,9 +1,9 @@
-import { computed, inject, signal } from '@angular/core';
-import { UserResDto } from '../../shared/interfaces/user-res.dto';
+import { computed, signal } from '@angular/core';
 import { UserRole } from '../../shared/enums/user-role.enum';
 import { TokenService } from '../services/token.service';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { UserResDto } from '../../shared/interfaces/user/user-res.dto';
 
 let _tokenService: TokenService;
 let _router: Router;

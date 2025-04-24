@@ -48,14 +48,12 @@ export class LoginComponent {
       tap(res => this.tokenService.setToken(res.access_token)),
       switchMap(() => this.authService.getCurrentUser()),
       tap(user => {
-        debugger
         authStore.setUser(user);
         const returnUrl = this.router.getCurrentNavigation()?.extras?.state?.['returnUrl'];
         this.router.navigate([returnUrl || '/dashboard']);
       }),
 
       catchError(err => {
-        debugger
         this.tokenService.clearToken();
         this.snackbar.open(
           err.status === 401

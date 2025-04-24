@@ -4,11 +4,12 @@ import { provideRouter, Router } from '@angular/router';
 import { routes } from './app.routes';
 import { BACKEND_URL } from './shared/tokens/backend-url.token';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { TokenService } from './core/services/token.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { authStore } from './core/auth/auth.store';
+import { catchError, firstValueFrom, of } from 'rxjs';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -29,7 +30,25 @@ export const appConfig: ApplicationConfig = {
         const snackbar = inject(MatSnackBar);
 
         authStore.init(tokenService, router, snackbar);
+      },
+    },
+    {
+      provide: ENVIRONMENT_INITIALIZER,
+      multi: true,
+      useFactory: () => () => {
+        const http = inject(HttpClient);
+        const api = inject(BACKEND_URL);
+        const router = inject(Router);
+
+        return firstValueFrom(
+          http.get(`${api}/health`, { responseType: 'text' }).pipe(
+            catchError(() => {
+              router.navigate(['/server-unavailable']);
+              return of(null);
+            })
+          )
+        );
       }
-    }
+    },
   ]
 };

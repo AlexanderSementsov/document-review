@@ -1,0 +1,56 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="register-form">
+  <app-form-field
+    [formGroup]="form"
+    [controlName]="'fullName'"
+    [label]="'Full Name'"
+    [placeholder]="'Enter your name'"
+    [type]="'text'"
+    [error]="'Full name is required'"
+  />
+
+  <app-form-field
+    [formGroup]="form"
+    [controlName]="'email'"
+    [label]="'Email'"
+    [placeholder]="'Enter your email'"
+    [type]="'email'"
+    [error]="'Valid email is required'"
+  />
+
+  <app-form-field
+    [formGroup]="form"
+    [controlName]="'password'"
+    [label]="'Password'"
+    [placeholder]="'Enter a password'"
+    [type]="'password'"
+    [error]="'Minimum 6 characters'"
+  />
+
+  <app-form-field
+    [formGroup]="form"
+    [controlName]="'confirmPassword'"
+    [label]="'Confirm Password'"
+    [placeholder]="'Repeat your password'"
+    [type]="'password'"
+    [error]="'Passwords must match'"
+  />
+  <div class="error" *ngIf="confirmPasswordError">
+    Passwords do not match
+  </div>
+
+  <button type="submit" [disabled]="form.invalid || isLoading()" class="register-button">
+    @if (isLoading()) {
+      <mat-spinner diameter="20" strokeWidth="3"></mat-spinner>
+    } @else {
+      Register
+    }
+  </button>
+
+  <button
+    type="button"
+    class="back-button"
+    (click)="router.navigate(['/login'])"
+  >
+    Back to login
+  </button>
+</form>

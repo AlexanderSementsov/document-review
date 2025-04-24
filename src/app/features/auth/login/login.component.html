@@ -1,0 +1,35 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="login-form">
+  <app-form-field
+    [formGroup]="form"
+    [controlName]="'email'"
+    [label]="'Email'"
+    [placeholder]="'Enter your email'"
+    [type]="'email'"
+    [error]="'Email is required or invalid'"
+  />
+
+  <app-form-field
+    [formGroup]="form"
+    [controlName]="'password'"
+    [label]="'Password'"
+    [placeholder]="'Enter your password'"
+    [type]="'password'"
+    [error]="'Password is required'"
+  />
+
+  <button type="submit" [disabled]="form.invalid || isLoading()" class="login-button">
+    @if (isLoading()) {
+      <mat-spinner diameter="20" strokeWidth="3"></mat-spinner>
+    } @else {
+      Login
+    }
+  </button>
+
+  <button
+    type="button"
+    class="back-button"
+    (click)="router.navigate(['/register'])"
+  >
+    Create new account
+  </button>
+</form>

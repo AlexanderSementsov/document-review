@@ -1,0 +1,79 @@
+import { Component, inject, signal } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { FormFieldComponent } from '../../../shared/components/form-field/form-field.component';
+import { AuthService } from '../../../core/services/auth.service';
+import { TokenService } from '../../../core/services/token.service';
+import { authStore } from '../../../core/auth/auth.store';
+import { catchError, concatMap, exhaustMap, finalize, of, tap } from 'rxjs';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
+
+@Component({
+  standalone: true,
+  selector: 'app-register',
+  templateUrl: './register.component.html',
+  styleUrls: ['./register.component.scss'],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatSnackBarModule,
+    FormFieldComponent,
+    MatProgressSpinner
+  ]
+})
+export class RegisterComponent {
+  private fb = inject(FormBuilder);
+  private authService = inject(AuthService);
+  private tokenService = inject(TokenService);
+  protected router = inject(Router);
+  private snackbar = inject(MatSnackBar);
+
+  isLoading = signal(false);
+
+  form: FormGroup = this.fb.group({
+    fullName: ['', Validators.required],
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(6)]],
+    confirmPassword: ['', Validators.required],
+    role: ['USER', Validators.required]
+  }, { validators: this.passwordsMatch });
+
+  get confirmPasswordError(): boolean {
+    return !!(this.form.hasError('passwordMismatch') && this.form.get('confirmPassword')?.touched);
+  }
+
+  private passwordsMatch(group: AbstractControl): ValidationErrors | null {
+    const password = group.get('password')?.value;
+    const confirm = group.get('confirmPassword')?.value;
+    return password === confirm ? null : { passwordMismatch: true };
+  }
+
+  onSubmit() {
+    if (this.form.invalid) return;
+
+    this.isLoading.set(true);
+    const { confirmPassword, ...dto } = this.form.value;
+
+    this.authService.register(dto).pipe(
+      exhaustMap(() =>
+        of(dto).pipe(
+          concatMap(credentials => this.authService.login({ email: credentials.email, password: credentials.password })),
+          tap(res => this.tokenService.setToken(res.access_token)),
+          concatMap(() => this.authService.getCurrentUser())
+        )
+      ),
+      tap(user => {
+        authStore.setUser(user);
+        this.router.navigate(['/dashboard']);
+      }),
+      catchError(() => {
+        this.snackbar.open('Registration failed. Please try again.', 'Close', { duration: 3000 });
+        return of(null);
+      }),
+      finalize(() => this.isLoading.set(false))
+    ).subscribe();
+  }
+
+}

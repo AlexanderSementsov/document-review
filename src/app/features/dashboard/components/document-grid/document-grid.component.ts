@@ -21,11 +21,16 @@ import {
   MatTable
 } from '@angular/material/table';
 import { MatInput } from '@angular/material/input';
-import { MatButton } from '@angular/material/button';
+import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatPaginator } from '@angular/material/paginator';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
+
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { UserRole } from '../../../../shared/enums/user-role.enum';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { MatIcon } from '@angular/material/icon';
+import { catchError, combineLatest, EMPTY, switchMap } from 'rxjs';
 
 @Component({
   standalone: true,
@@ -54,79 +59,114 @@ import { UserRole } from '../../../../shared/enums/user-role.enum';
     NgForOf,
     NgIf,
     MatHeaderRowDef,
-    MatPaginator
+    MatPaginator,
+    MatIcon,
+    MatIconButton
   ]
 })
 export class DocumentGridComponent {
   private readonly documentService = inject(DocumentService);
+  private readonly router = inject(Router);
+  private readonly snackbar = inject(MatSnackBar);
+
   protected readonly isReviewer = authStore.isReviewer;
   protected readonly user = authStore.user;
-  private router = inject(Router);
-  private snackbar = inject(MatSnackBar);
 
   readonly data = signal<DocumentResDto[]>([]);
-  readonly isLoading = signal<boolean>(false);
-  readonly totalCount = signal<number>(0);
+  readonly isLoading = signal(false);
+  readonly totalCount = signal(0);
 
-  readonly pageIndex = signal(1);
-  readonly pageSize = signal(10);
+  readonly creatorEmail = signal('');
+  readonly creatorId = signal('');
 
-  // Filters
-  readonly statusFilter = signal<DocumentStatus | null>(null);
-  readonly creatorEmailFilter = signal<string>('');
-  readonly sort = signal<SortDocumentsEnum | null>(null);
+  readonly query = signal({
+    page: 1,
+    size: 10,
+    status: null as DocumentStatus | null,
+    sort: null as SortDocumentsEnum | null
+  });
 
   readonly displayedColumns = computed(() =>
     this.isReviewer() ? ['name', 'status', 'creatorEmail', 'updatedAt', 'actions'] : ['name', 'status', 'updatedAt', 'actions']
   );
 
-  readonly reqParams = computed(() => ({
-    page: this.pageIndex(),
-    size: this.pageSize(),
-    status: this.statusFilter() || undefined,
-    sort: this.sort() || undefined,
-    creatorEmail: this.isReviewer() ? this.creatorEmailFilter() || undefined : undefined,
-  }));
-
-  readonly statusOptions = Object.values(DocumentStatus);
-  readonly sortOptions: { label: string; value: SortDocumentsEnum }[] = [
-    { label: 'Updated', value: SortDocumentsEnum.UPDATED },
-    { label: 'Status', value: SortDocumentsEnum.STATUS },
-    { label: 'Name (A-Z)', value: SortDocumentsEnum.NAME },
-  ];
+  readonly statusOptions = this.user()?.role === 'USER' ?
+    Object.values(DocumentStatus) :
+    Object.values(DocumentStatus).filter(status => status !== DocumentStatus.DRAFT);
 
   constructor() {
-    effect(() => {
-      const params = this.reqParams();
-      this.fetchDocuments(params);
-    }, { allowSignalWrites: true });
+    const query$ = toObservable(this.query);
+    const email$ = toObservable(this.creatorEmail).pipe(
+      debounceTime(400),
+      distinctUntilChanged()
+    );
+    const uuid$ = toObservable(this.creatorId).pipe(
+      debounceTime(400),
+      distinctUntilChanged()
+    );
+
+    combineLatest([query$, email$, uuid$])
+      .pipe(
+        switchMap(([query, email, uuid]) => {
+          this.isLoading.set(true);
+          return this.documentService.getDocuments({
+            page: query.page,
+            size: query.size,
+            status: query.status || undefined,
+            sort: query.sort || undefined,
+            creatorEmail: this.isReviewer() ? email || undefined : undefined,
+            creatorId: this.isReviewer() ? uuid || undefined : undefined,
+          }).pipe(
+            catchError(err => {
+              console.error('Document loading failed', err);
+              this.data.set([]);
+              this.totalCount.set(0);
+              this.isLoading.set(false);
+              return EMPTY;
+            })
+          );
+        })
+      )
+      .subscribe({
+        next: (res) => {
+          this.data.set(res.results);
+          this.totalCount.set(res.count);
+          this.isLoading.set(false);
+        },
+        error: () => {
+          this.data.set([]);
+          this.totalCount.set(0);
+          this.isLoading.set(false);
+        }
+      });
   }
 
-  fetchDocuments(query: PaginationParams): void {
-    this.isLoading.set(true);
+  toggleSort(field: 'name' | 'status' | 'updatedAt') {
+    const current = this.query().sort;
+    const isAsc = current?.startsWith(field) && current.endsWith('asc');
+    const newSort = !current || !current.startsWith(field)
+      ? `${field}, asc`
+      : isAsc
+        ? `${field}, desc`
+        : null;
 
-    this.documentService.getDocuments(query).subscribe({
-      next: res => {
-        this.data.set(res.results);
-        this.totalCount.set(res.count);
-      },
-      error: () => this.data.set([]),
-      complete: () => this.isLoading.set(false)
-    });
-  }
-
-  onFilterChange(): void {
-    this.pageIndex.set(1);
-  }
-
-  onSortChange(newSort: SortDocumentsEnum): void {
-    this.sort.set(newSort);
-    this.pageIndex.set(1);
+    this.query.set({ ...this.query(), sort: newSort as SortDocumentsEnum | null, page: 1 });
   }
 
   onPageChange(event: { pageIndex: number; pageSize: number }): void {
-    this.pageIndex.set(event.pageIndex || 1);
-    this.pageSize.set(event.pageSize);
+    this.query.set({ ...this.query(), page: event.pageIndex + 1 || 1, size: event.pageSize });
+  }
+
+  onStatusChange(event: DocumentStatus): void {
+    this.query.set({ ...this.query(), status: event });
+  }
+
+  onEmailInput(value: string) {
+    this.creatorEmail.set(value);
+  }
+
+  onUuidInput(value: string) {
+    this.creatorId.set(value);
   }
 
   viewDocument(id: string): void {
@@ -136,15 +176,14 @@ export class DocumentGridComponent {
   }
 
   removeDocument(id: string, row: DocumentResDto): void {
-    if (id && (row?.status === DocumentStatus.DRAFT || row?.status === DocumentStatus.REVOKE)) {
+    if (id && (row.status === DocumentStatus.DRAFT || row.status === DocumentStatus.REVOKE)) {
       this.documentService.deleteDocument(id).subscribe({
         next: () => {
-          this.snackbar.open('Document deleted.', 'Close', {duration: 3000});
-          const params = this.reqParams();
-          this.fetchDocuments(params);
+          this.snackbar.open('Document deleted.', 'Close', { duration: 3000 });
+          this.query.set({ ...this.query(), page: 1 });
         },
         error: () => {
-          this.snackbar.open('Failed to delete.', 'Close', {duration: 3000});
+          this.snackbar.open('Failed to delete document.', 'Close', { duration: 3000 });
         }
       });
     }

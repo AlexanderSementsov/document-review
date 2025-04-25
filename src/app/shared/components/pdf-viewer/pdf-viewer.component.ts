@@ -1,4 +1,4 @@
-import { afterNextRender, Component } from '@angular/core';
+import { afterNextRender, Component, effect, input, signal } from '@angular/core';
 import NutrientViewer from '@nutrient-sdk/viewer';
 
 @Component({
@@ -8,11 +8,16 @@ import NutrientViewer from '@nutrient-sdk/viewer';
   standalone: true,
 })
 export class PdfViewerComponent {
+  documentUrl = input<string | null>('')
+
   constructor() {
-    afterNextRender(() => {
+    effect(() => {
+      const url = this.documentUrl();
+      if (!url) return;
+
       NutrientViewer.load({
         baseUrl: `${location.origin}/assets/`,
-        document: `${location.origin}/assets/document-pdf.pdf`,
+        document: url,
         container: '#nutrient-container',
         locale: 'en',
         toolbarItems: [
@@ -30,6 +35,6 @@ export class PdfViewerComponent {
       }).then(instance => {
         (window as any).instance = instance;
       });
-    });
+    }, { allowSignalWrites: true });
   }
 }

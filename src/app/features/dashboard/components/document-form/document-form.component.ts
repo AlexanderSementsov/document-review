@@ -6,7 +6,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatButton } from '@angular/material/button';
 import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { PdfViewerComponent } from '../../../../shared/components/pdf-viewer/pdf-viewer.component';
 import { DocumentStatus, ReviewerDocumentStatus } from '../../../../shared/enums/document-status.enum';
 import { DocumentResDto } from '../../../../shared/interfaces/document/document-res.dto';
@@ -28,7 +28,8 @@ import { UserRole } from '../../../../shared/enums/user-role.enum';
     MatLabel,
     MatError,
     PdfViewerComponent,
-    NgIf
+    NgIf,
+    RouterLink
   ]
 })
 export class DocumentFormComponent {
@@ -37,11 +38,14 @@ export class DocumentFormComponent {
   private snackbar = inject(MatSnackBar);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private readonly MAX_FILE_SIZE_MB = 20;
+  private readonly ALLOWED_FILE_TYPES = ['application/pdf'];
 
   form: FormGroup = this.fb.group({
     name: ['', Validators.required],
     file: [null, Validators.required]
   });
+
 
   readonly userRole = computed(() => authStore.user()?.role || null);
 
@@ -110,14 +114,27 @@ export class DocumentFormComponent {
   private submitDocument(status: DocumentStatus) {
     if (this.form.invalid || (!this.selectedFile() && !this.fileUrl())) return;
 
+    const file = this.selectedFile();
+    if (file) {
+      if (file.size > this.MAX_FILE_SIZE_MB * 1024 * 1024) {
+        this.snackbar.open(`File is too large. Max allowed is ${this.MAX_FILE_SIZE_MB} MB.`, 'Close', { duration: 3000 });
+        return;
+      }
+
+      if (!this.ALLOWED_FILE_TYPES.includes(file.type)) {
+        this.snackbar.open(`Unsupported file type: ${file.type}`, 'Close', { duration: 3000 });
+        return;
+      }
+    }
+
     const formData = new FormData();
     formData.append('name', this.form.value.name!);
-    if (this.selectedFile()) {
-      formData.append('file', this.selectedFile()!);
+    if (file) {
+      formData.append('file', file);
     }
     formData.append('status', status);
 
-    this.documentService.uploadDocument(formData as any).subscribe({
+    this.documentService.uploadDocument(formData).subscribe({
       next: res => {
         this.snackbar.open(`Document saved with status "${status}" successfully.`, 'Close', { duration: 3000 });
         this.router.navigate(['/dashboard/document', res.id]);

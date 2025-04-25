@@ -1,5 +1,12 @@
 import { Component, inject, signal } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators
+} from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -9,6 +16,9 @@ import { TokenService } from '../../../core/services/token.service';
 import { authStore } from '../../../core/auth/auth.store';
 import { catchError, concatMap, exhaustMap, finalize, of, tap } from 'rxjs';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { MatFormField, MatLabel } from '@angular/material/form-field';
+import { MatOption, MatSelect } from '@angular/material/select';
+import { UserRole } from '../../../shared/enums/user-role.enum';
 
 @Component({
   standalone: true,
@@ -20,7 +30,11 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
     ReactiveFormsModule,
     MatSnackBarModule,
     FormFieldComponent,
-    MatProgressSpinner
+    MatProgressSpinner,
+    MatFormField,
+    MatSelect,
+    MatOption,
+    MatLabel
   ]
 })
 export class RegisterComponent {
@@ -30,6 +44,11 @@ export class RegisterComponent {
   protected router = inject(Router);
   private snackbar = inject(MatSnackBar);
 
+  readonly roles = [
+    { value: UserRole.USER, label: 'User' },
+    { value: UserRole.REVIEWER, label: 'Reviewer' }
+  ];
+
   isLoading = signal(false);
 
   form: FormGroup = this.fb.group({
@@ -37,7 +56,7 @@ export class RegisterComponent {
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
     confirmPassword: ['', Validators.required],
-    role: ['USER', Validators.required]
+    role: [UserRole.USER, Validators.required]
   }, { validators: this.passwordsMatch });
 
   get confirmPasswordError(): boolean {

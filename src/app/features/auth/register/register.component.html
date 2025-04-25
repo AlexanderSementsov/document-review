@@ -38,6 +38,17 @@
     Passwords do not match
   </div>
 
+  <div class="form-field">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Role</mat-label>
+      <mat-select formControlName="role">
+        <mat-option *ngFor="let role of roles" [value]="role.value">
+          {{ role.label }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
   <button type="submit" [disabled]="form.invalid || isLoading()" class="register-button">
     @if (isLoading()) {
       <mat-spinner diameter="20" strokeWidth="3"></mat-spinner>

@@ -1,4 +1,5 @@
 <div class="document-form">
+  <button [routerLink]="'dashboard'">Back to Dashboard</button>
   <div class="form-panel">
     <h2>Status: {{fileData()?.status}}</h2>
     <form [formGroup]="form">
@@ -73,6 +74,8 @@
   </div>
 
   <div class="viewer-panel">
-    <pdf-viewer *ngIf="fileUrl()"></pdf-viewer>
+    @if (fileUrl()) {
+      <pdf-viewer [documentUrl]="fileUrl()"></pdf-viewer>
+    }
   </div>
 </div>

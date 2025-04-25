@@ -30,7 +30,7 @@ export class DocumentService {
     return this.http.get<DocumentResDto>(`${this.baseUrl}/document/${id}`);
   }
 
-  uploadDocument(payload: UploadDocumentDto): Observable<DocumentResDto> {
+  uploadDocument(payload: FormData): Observable<DocumentResDto> {
     return this.http.post<DocumentResDto>(`${this.baseUrl}/document`, payload);
   }
 

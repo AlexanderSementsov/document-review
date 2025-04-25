@@ -1,0 +1,78 @@
+<div class="document-form">
+  <div class="form-panel">
+    <h2>Status: {{fileData()?.status}}</h2>
+    <form [formGroup]="form">
+      @if (isEditMode()) {
+        @if (isRenaming()) {
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>New Document Name</mat-label>
+            <input matInput [formControl]="nameControl" (keyup.enter)="saveNewName()" placeholder="Enter new name" />
+          </mat-form-field>
+          <button mat-button color="primary" (click)="saveNewName()">Save</button>
+        } @else {
+          <h2 (click)="startRenaming()" class="document-title">{{ form.get('name')?.value }}</h2>
+        }
+      } @else {
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Document Name</mat-label>
+          <input matInput formControlName="name" placeholder="Enter document name" />
+        </mat-form-field>
+      }
+
+      <mat-error *ngIf="form.get('name')?.invalid && form.get('name')?.touched">
+        Name is required
+      </mat-error>
+
+      <ng-container *ngIf="!isEditMode()">
+        <input type="file" (change)="onFileChange($event)" accept="application/pdf" />
+      </ng-container>
+
+      <div class="actions">
+        @if (!isEditMode()) {
+          <button mat-raised-button color="primary" (click)="saveAsDraft()" [disabled]="form.invalid || (!selectedFile() && !fileUrl())">
+            Save as Draft
+          </button>
+          <button mat-raised-button color="accent" (click)="submitToReview()" [disabled]="form.invalid || (!selectedFile() && !fileUrl())">
+            Submit for Review
+          </button>
+        }
+
+        @if (canRename()) {
+          <button mat-raised-button color="accent" (click)="startRenaming()">
+            Rename
+          </button>
+        }
+
+        @if (canRevoke()) {
+          <button mat-raised-button color="warn" (click)="revokeDocument()">
+            Revoke
+          </button>
+        }
+
+        @if (canBeReviewed()) {
+          <button mat-raised-button color="accent" (click)="sendToReview()">
+            Send to Review
+          </button>
+        }
+
+        @if (canDelete()) {
+          <button mat-raised-button color="warn" (click)="deleteDocument()">
+            Delete
+          </button>
+        }
+
+        @if (canChangeStatus()) {
+          <div class="status-actions">
+            <button mat-stroked-button color="primary" (click)="changeStatus(DocumentStatus.UNDER_REVIEW)">Under Review</button>
+            <button mat-stroked-button color="accent" (click)="changeStatus(DocumentStatus.APPROVED)">Approve</button>
+            <button mat-stroked-button color="warn" (click)="changeStatus(DocumentStatus.DECLINED)">Decline</button>
+          </div>
+        }
+      </div>
+    </form>
+  </div>
+
+  <div class="viewer-panel">
+    <pdf-viewer *ngIf="fileUrl()"></pdf-viewer>
+  </div>
+</div>

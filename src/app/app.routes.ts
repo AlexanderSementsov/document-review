@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { authorizedGuard } from './core/guards/authorized.guard';
 import { dashboardRoutes } from './features/dashboard/dashboard.routes';
+import { LayoutComponent } from './core/layout/layout.component';
 
 export const routes: Routes = [
   {
@@ -18,6 +19,7 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard',
+    component: LayoutComponent,
     canActivate: [authGuard],
     loadChildren: () => Promise.resolve(dashboardRoutes)
   },

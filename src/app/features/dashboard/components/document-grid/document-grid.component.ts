@@ -23,6 +23,7 @@ import {
 import { MatInput } from '@angular/material/input';
 import { MatButton } from '@angular/material/button';
 import { MatPaginator } from '@angular/material/paginator';
+import { Router } from '@angular/router';
 
 @Component({
   standalone: true,
@@ -58,6 +59,7 @@ export class DocumentGridComponent {
   private readonly documentService = inject(DocumentService);
   protected readonly isReviewer = authStore.isReviewer;
   private readonly user = authStore.user;
+  private router = inject(Router);
 
   readonly data = signal<DocumentResDto[]>([]);
   readonly isLoading = signal<boolean>(false);
@@ -125,6 +127,8 @@ export class DocumentGridComponent {
   }
 
   viewDocument(id: string): void {
-    console.log('Navigate to document:', id);
+    if (id) {
+      this.router.navigate([`dashboard/document/${id}`])
+    }
   }
 }

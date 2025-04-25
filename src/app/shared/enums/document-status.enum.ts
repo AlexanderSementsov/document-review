@@ -6,3 +6,5 @@ export enum DocumentStatus {
   APPROVED = 'APPROVED',
   DECLINED = 'DECLINED'
 }
+
+export type ReviewerDocumentStatus = DocumentStatus.UNDER_REVIEW | DocumentStatus.APPROVED | DocumentStatus.DECLINED;

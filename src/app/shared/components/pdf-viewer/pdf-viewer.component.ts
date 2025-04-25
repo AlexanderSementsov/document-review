@@ -1,4 +1,4 @@
-import { afterNextRender, Component, effect, input, signal } from '@angular/core';
+import { Component, effect, input, OnDestroy  } from '@angular/core';
 import NutrientViewer from '@nutrient-sdk/viewer';
 
 @Component({
@@ -7,13 +7,18 @@ import NutrientViewer from '@nutrient-sdk/viewer';
   styleUrls: ['./pdf-viewer.component.scss'],
   standalone: true,
 })
-export class PdfViewerComponent {
+export class PdfViewerComponent implements OnDestroy {
   documentUrl = input<string | null>('')
+  private instance: any = null;
 
   constructor() {
     effect(() => {
       const url = this.documentUrl();
       if (!url) return;
+
+      if (this.instance) {
+        NutrientViewer.unload(this.instance);
+      }
 
       NutrientViewer.load({
         baseUrl: `${location.origin}/assets/`,
@@ -33,8 +38,18 @@ export class PdfViewerComponent {
           { type: 'export-pdf' }
         ]
       }).then(instance => {
+        this.instance = instance;
         (window as any).instance = instance;
       });
     }, { allowSignalWrites: true });
+  }
+
+  ngOnDestroy(): void {
+    if (this.instance) {
+      NutrientViewer.unload(this.instance);
+      this.instance = null;
+    } else {
+      NutrientViewer.unload('#nutrient-container');
+    }
   }
 }

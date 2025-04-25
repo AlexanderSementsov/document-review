@@ -4,7 +4,7 @@
   <mat-form-field appearance="outline">
     <mat-label>Status</mat-label>
     <mat-select [value]="query().status" (selectionChange)="onStatusChange($event.value)">
-      <mat-option [value]="null">Reset</mat-option>
+      <mat-option [value]="null"></mat-option>
       <mat-option *ngFor="let status of statusOptions" [value]="status">{{ status }}</mat-option>
     </mat-select>
   </mat-form-field>

@@ -6,7 +6,6 @@ import { DocumentStatus } from '../../../../shared/enums/document-status.enum';
 import { SortDocumentsEnum } from '../../../../shared/enums/sort-documents.enum';
 
 import { DatePipe, NgForOf, NgIf } from '@angular/common';
-import { PaginationParams } from '../../../../shared/types/pagination-params';
 import { MatToolbar } from '@angular/material/toolbar';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatOption, MatSelect } from '@angular/material/select';
@@ -114,8 +113,8 @@ export class DocumentGridComponent {
             size: query.size,
             status: query.status || undefined,
             sort: query.sort || undefined,
-            creatorEmail: this.isReviewer() ? email || undefined : undefined,
-            creatorId: this.isReviewer() ? uuid || undefined : undefined,
+            creatorEmail: this.isReviewer() ? email?.trim() || undefined : undefined,
+            creatorId: this.isReviewer() ? uuid?.trim() || undefined : undefined,
           }).pipe(
             catchError(err => {
               console.error('Document loading failed', err);

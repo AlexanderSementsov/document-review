@@ -24,6 +24,8 @@ import { MatInput } from '@angular/material/input';
 import { MatButton } from '@angular/material/button';
 import { MatPaginator } from '@angular/material/paginator';
 import { Router } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { UserRole } from '../../../../shared/enums/user-role.enum';
 
 @Component({
   standalone: true,
@@ -58,8 +60,9 @@ import { Router } from '@angular/router';
 export class DocumentGridComponent {
   private readonly documentService = inject(DocumentService);
   protected readonly isReviewer = authStore.isReviewer;
-  private readonly user = authStore.user;
+  protected readonly user = authStore.user;
   private router = inject(Router);
+  private snackbar = inject(MatSnackBar);
 
   readonly data = signal<DocumentResDto[]>([]);
   readonly isLoading = signal<boolean>(false);
@@ -128,7 +131,25 @@ export class DocumentGridComponent {
 
   viewDocument(id: string): void {
     if (id) {
-      this.router.navigate([`dashboard/document/${id}`])
+      this.router.navigate([`dashboard/document/${id}`]);
     }
   }
+
+  removeDocument(id: string, row: DocumentResDto): void {
+    if (id && (row?.status === DocumentStatus.DRAFT || row?.status === DocumentStatus.REVOKE)) {
+      this.documentService.deleteDocument(id).subscribe({
+        next: () => {
+          this.snackbar.open('Document deleted.', 'Close', {duration: 3000});
+          const params = this.reqParams();
+          this.fetchDocuments(params);
+        },
+        error: () => {
+          this.snackbar.open('Failed to delete.', 'Close', {duration: 3000});
+        }
+      });
+    }
+  }
+
+  protected readonly UserRole = UserRole;
+  protected readonly DocumentStatus = DocumentStatus;
 }

@@ -53,6 +53,14 @@
     <th mat-header-cell *matHeaderCellDef> Actions </th>
     <td mat-cell *matCellDef="let row">
       <button mat-button color="primary" (click)="viewDocument(row.id)">View</button>
+      <button
+        *ngIf="user()?.role === UserRole.USER"
+        mat-button
+        color="warn"
+        [disabled]="!(row.status === DocumentStatus.DRAFT || row.status === DocumentStatus.REVOKE)"
+        (click)="removeDocument(row.id, row)"
+      >Remove
+      </button>
     </td>
   </ng-container>
 

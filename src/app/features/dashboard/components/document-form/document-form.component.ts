@@ -3,7 +3,7 @@ import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } 
 import { CommonModule, NgIf } from '@angular/common';
 import { DocumentService } from '../../../../core/services/document.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatButton } from '@angular/material/button';
+import { MatButton, MatFabButton, MatIconButton } from '@angular/material/button';
 import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -13,6 +13,10 @@ import { DocumentResDto } from '../../../../shared/interfaces/document/document-
 import { catchError, EMPTY, switchMap, tap } from 'rxjs';
 import { authStore } from '../../../../core/auth/auth.store';
 import { UserRole } from '../../../../shared/enums/user-role.enum';
+import { MatIcon } from '@angular/material/icon';
+import { StatusChipComponent } from '../../../../shared/components/status-chip/status-chip.component';
+import { FormFieldComponent } from '../../../../shared/components/form-field/form-field.component';
+import { MatTooltip } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-document-form',
@@ -29,7 +33,13 @@ import { UserRole } from '../../../../shared/enums/user-role.enum';
     MatError,
     PdfViewerComponent,
     NgIf,
-    RouterLink
+    RouterLink,
+    MatIconButton,
+    MatFabButton,
+    MatIcon,
+    StatusChipComponent,
+    FormFieldComponent,
+    MatTooltip,
   ]
 })
 export class DocumentFormComponent {

@@ -1,81 +1,115 @@
-<div class="document-form">
-  <button [routerLink]="'dashboard'">Back to Dashboard</button>
-  <div class="form-panel">
-    <h2>Status: {{fileData()?.status}}</h2>
-    <form [formGroup]="form">
-      @if (isEditMode()) {
-        @if (isRenaming()) {
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>New Document Name</mat-label>
-            <input matInput [formControl]="nameControl" (keyup.enter)="saveNewName()" placeholder="Enter new name" />
-          </mat-form-field>
-          <button mat-button color="primary" (click)="saveNewName()">Save</button>
+<main class="document-form">
+  <button mat-fab extended class="back-button" [routerLink]="'dashboard'">
+    <mat-icon>arrow_back</mat-icon>
+    Go Back
+  </button>
+
+  <div class="status-date-container">
+    <app-status-chip [status]="fileData()?.status"/>
+
+    <div class="status-time">
+      <span class="last-updated">
+          Updated: {{ fileData()?.updatedAt | date: 'short' }}
+        </span>
+    </div>
+  </div>
+
+
+  <div class="top-bar">
+    <div class="document-info">
+      <form [formGroup]="form">
+        @if (isEditMode()) {
+          <div class="document-name-container">
+            @if (isRenaming()) {
+              <app-form-field
+                (keyup.enter)="saveNewName()"
+                [controlName]="'name'"
+                [formGroup]="form"
+                [type]="'text'"
+                [error]="'Name is required'"
+                [placeholder]="'Enter document name'"
+              >
+              </app-form-field>
+              <mat-icon class="save-name-button" (click)="saveNewName()">edit_document</mat-icon>
+            } @else {
+              <span (click)="startRenaming()" class="document-title" [matTooltip]="userRole() === 'USER' ? 'Click to edit document name' : 'Document Name' ">
+                <span style="font-weight: bold">Title: </span>
+                {{ form.get('name')?.value }}
+              </span>
+            }
+          </div>
         } @else {
-          <h2 (click)="startRenaming()" class="document-title">{{ form.get('name')?.value }}</h2>
+          <app-form-field
+            (keyup.enter)="saveNewName()"
+            [controlName]="'name'"
+            [formGroup]="form"
+            [type]="'text'"
+            [error]="'Name is required'"
+            [placeholder]="'Enter document name'"
+          >
+          </app-form-field>
         }
-      } @else {
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Document Name</mat-label>
-          <input matInput formControlName="name" placeholder="Enter document name" />
-        </mat-form-field>
+
+        <ng-container *ngIf="!isEditMode()">
+          <input type="file" (change)="onFileChange($event)" accept="application/pdf"/>
+        </ng-container>
+      </form>
+
+    </div>
+
+
+    <div class="actions">
+      @if (!isEditMode()) {
+        <button mat-raised-button color="primary" (click)="saveAsDraft()"
+                [disabled]="form.invalid || (!selectedFile() && !fileUrl())">
+          Save as Draft
+        </button>
+        <button mat-raised-button color="accent" (click)="submitToReview()"
+                [disabled]="form.invalid || (!selectedFile() && !fileUrl())">
+          Submit for Review
+        </button>
       }
 
-      <mat-error *ngIf="form.get('name')?.invalid && form.get('name')?.touched">
-        Name is required
-      </mat-error>
+      @if (canRevoke()) {
+        <button mat-raised-button color="warn" (click)="revokeDocument()">
+          Revoke
+        </button>
+      }
 
-      <ng-container *ngIf="!isEditMode()">
-        <input type="file" (change)="onFileChange($event)" accept="application/pdf" />
-      </ng-container>
+      @if (canBeReviewed()) {
+        <button mat-raised-button color="accent" (click)="sendToReview()">
+          Send to Review
+        </button>
+      }
 
-      <div class="actions">
-        @if (!isEditMode()) {
-          <button mat-raised-button color="primary" (click)="saveAsDraft()" [disabled]="form.invalid || (!selectedFile() && !fileUrl())">
-            Save as Draft
+      @if (canDelete()) {
+        <button
+          mat-icon-button
+          color="warn"
+          aria-label="Remove Document"
+          (click)="deleteDocument()"
+        >
+          <mat-icon>delete</mat-icon>
+        </button>
+      }
+
+      @if (canChangeStatus()) {
+        <div class="status-actions">
+          <button mat-stroked-button color="primary" (click)="changeStatus(DocumentStatus.UNDER_REVIEW)">Under
+            Review
           </button>
-          <button mat-raised-button color="accent" (click)="submitToReview()" [disabled]="form.invalid || (!selectedFile() && !fileUrl())">
-            Submit for Review
-          </button>
-        }
-
-        @if (canRename()) {
-          <button mat-raised-button color="accent" (click)="startRenaming()">
-            Rename
-          </button>
-        }
-
-        @if (canRevoke()) {
-          <button mat-raised-button color="warn" (click)="revokeDocument()">
-            Revoke
-          </button>
-        }
-
-        @if (canBeReviewed()) {
-          <button mat-raised-button color="accent" (click)="sendToReview()">
-            Send to Review
-          </button>
-        }
-
-        @if (canDelete()) {
-          <button mat-raised-button color="warn" (click)="deleteDocument()">
-            Delete
-          </button>
-        }
-
-        @if (canChangeStatus()) {
-          <div class="status-actions">
-            <button mat-stroked-button color="primary" (click)="changeStatus(DocumentStatus.UNDER_REVIEW)">Under Review</button>
-            <button mat-stroked-button color="accent" (click)="changeStatus(DocumentStatus.APPROVED)">Approve</button>
-            <button mat-stroked-button color="warn" (click)="changeStatus(DocumentStatus.DECLINED)">Decline</button>
-          </div>
-        }
-      </div>
-    </form>
+          <button mat-stroked-button color="accent" (click)="changeStatus(DocumentStatus.APPROVED)">Approve</button>
+          <button mat-stroked-button color="warn" (click)="changeStatus(DocumentStatus.DECLINED)">Decline</button>
+        </div>
+      }
+    </div>
   </div>
 
-  <div class="viewer-panel">
-    @if (fileUrl()) {
-      <pdf-viewer [documentUrl]="fileUrl()"></pdf-viewer>
-    }
+  <div class="content-area">
+    <section class="viewer-panel">
+      @if (fileUrl()) {
+        <pdf-viewer [documentUrl]="fileUrl()"></pdf-viewer>
+      }
+    </section>
   </div>
-</div>
+</main>

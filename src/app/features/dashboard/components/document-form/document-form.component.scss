@@ -1,7 +1,138 @@
+@use 'variables' as *;
+
 .document-form {
   display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  box-sizing: border-box;
+
+  .back-button {
+    align-self: flex-start;
+    background: transparent;
+    color: $color-header;
+    font-weight: bold;
+    border-radius: 6px;
+    text-transform: none;
+    transition: background-color 0.3s;
+    height: 30px;
+    box-shadow: none;
+
+    &:hover {
+      background: $color-secondary;
+      color: $color-dark;
+    }
+  }
+
+  .status-date-container {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .top-bar {
+    min-height: 65px;
+    display: flex;
+    justify-content: space-between;
+    background: #fff;
+    border-radius: 10px;
+    padding: 0 1rem;
+    align-items: center;
+
+    .document-info {
+      display: flex;
+      gap: 1rem;
+
+      .save-name-button {
+        cursor: pointer;
+
+        &:hover {
+          color: $color-primary;
+        }
+      }
+
+      .info-icon {
+        cursor: help;
+        color: #696969;
+        font-size: 1rem;
+      }
+    }
+
+    .document-title {
+      cursor: pointer;
+    }
+
+    .document-name-container {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+    }
+  }
+
+  .content-area {
+    display: flex;
+    gap: 1rem;
+    flex-grow: 1;
+    min-height: 70vh;
+  }
+
+  .form-panel {
+    flex: 0 0 40%;
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    h2 {
+      margin-top: 0;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: $color-dark;
+      cursor: pointer;
+    }
+
+    .document-title {
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    mat-form-field.full-width {
+      width: 100%;
+    }
+
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+
+    .status-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+  }
+
 
   .viewer-panel {
-    flex: 1 1 100%;
+    flex: 1 1 60%;
+    background: white;
+    padding: 1rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    pdf-viewer {
+      width: 100%;
+      height: 100%;
+    }
   }
 }

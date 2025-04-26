@@ -248,10 +248,19 @@ export class DocumentFormComponent {
     );
   });
 
-  readonly canChangeStatus = computed(() => {
+  readonly canApproveOrDecline = computed(() => {
+    const data = this.fileData();
     return (
-      this.isEditMode() &&
+      this.userRole() === UserRole.REVIEWER &&
+      (data?.status === DocumentStatus.UNDER_REVIEW)
+    );
+  });
+
+  readonly canStartReview = computed(() => {
+    const data = this.fileData();
+    return (
       this.userRole() === UserRole.REVIEWER
+      && data?.status === DocumentStatus.READY_FOR_REVIEW
     );
   });
 
@@ -289,6 +298,36 @@ export class DocumentFormComponent {
         this.snackbar.open('Failed to change status.', 'Close', { duration: 3000 });
       }
     });
+  }
+
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  onDropFile(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+
+      if (file?.type === 'application/pdf') {
+        this.selectedFile.set(file);
+        this.form.get('file')?.setValue(file);
+
+        const fileReader = new FileReader();
+        fileReader.onload = () => {
+          this.fileUrl.set(fileReader.result as string);
+        };
+        fileReader.readAsDataURL(file);
+      } else {
+        this.snackbar.open('Only PDF files are supported.', 'Close', { duration: 3000 });
+      }
+    }
+
+
   }
 
   protected readonly DocumentStatus = DocumentStatus;

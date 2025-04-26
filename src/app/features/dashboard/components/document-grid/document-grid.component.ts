@@ -22,7 +22,7 @@ import {
 import { MatInput } from '@angular/material/input';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatPaginator } from '@angular/material/paginator';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
@@ -32,6 +32,7 @@ import { MatIcon } from '@angular/material/icon';
 import { catchError, combineLatest, EMPTY, switchMap } from 'rxjs';
 import { StatusChipComponent } from '../../../../shared/components/status-chip/status-chip.component';
 import { formatStatus } from '../../../../shared/utils/status-format';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 @Component({
   standalone: true,
@@ -64,7 +65,9 @@ import { formatStatus } from '../../../../shared/utils/status-format';
     MatIcon,
     MatIconButton,
     MatHint,
-    StatusChipComponent
+    StatusChipComponent,
+    MatProgressSpinner,
+    RouterLink
   ]
 })
 export class DocumentGridComponent {

@@ -4,20 +4,21 @@
     Go Back
   </button>
 
-  <div class="status-date-container">
-    <app-status-chip [status]="fileData()?.status"/>
+  @if (!!fileData()?.status) {
+    <div class="status-date-container">
+      <app-status-chip [status]="fileData()?.status"/>
 
-    <div class="status-time">
+      <div class="status-time">
       <span class="last-updated">
           Updated: {{ fileData()?.updatedAt | date: 'short' }}
         </span>
+      </div>
     </div>
-  </div>
-
+  }
 
   <div class="top-bar">
     <div class="document-info">
-      <form [formGroup]="form">
+      <form [formGroup]="form" class="form-container">
         @if (isEditMode()) {
           <div class="document-name-container">
             @if (isRenaming()) {
@@ -32,7 +33,8 @@
               </app-form-field>
               <mat-icon class="save-name-button" (click)="saveNewName()">edit_document</mat-icon>
             } @else {
-              <span (click)="startRenaming()" class="document-title" [matTooltip]="userRole() === 'USER' ? 'Click to edit document name' : 'Document Name' ">
+              <span (click)="startRenaming()" class="document-title"
+                    [matTooltip]="userRole() === 'USER' ? 'Click to edit document name' : 'Document Name' ">
                 <span style="font-weight: bold">Title: </span>
                 {{ form.get('name')?.value }}
               </span>
@@ -49,10 +51,6 @@
           >
           </app-form-field>
         }
-
-        <ng-container *ngIf="!isEditMode()">
-          <input type="file" (change)="onFileChange($event)" accept="application/pdf"/>
-        </ng-container>
       </form>
 
     </div>
@@ -93,15 +91,18 @@
         </button>
       }
 
-      @if (canChangeStatus()) {
-        <div class="status-actions">
+      <div class="status-actions">
+        @if (canStartReview()) {
           <button mat-stroked-button color="primary" (click)="changeStatus(DocumentStatus.UNDER_REVIEW)">Under
             Review
           </button>
+        }
+
+        @if (canApproveOrDecline()) {
           <button mat-stroked-button color="accent" (click)="changeStatus(DocumentStatus.APPROVED)">Approve</button>
           <button mat-stroked-button color="warn" (click)="changeStatus(DocumentStatus.DECLINED)">Decline</button>
-        </div>
-      }
+        }
+      </div>
     </div>
   </div>
 
@@ -109,7 +110,26 @@
     <section class="viewer-panel">
       @if (fileUrl()) {
         <pdf-viewer [documentUrl]="fileUrl()"></pdf-viewer>
-      }
+      } @else {
+      <div
+        class="upload-dropzone"
+        (drop)="onDropFile($event)"
+        (dragover)="onDragOver($event)"
+        (click)="fileInput.click()"
+      >
+        <input
+          #fileInput
+          type="file"
+          hidden
+          accept="application/pdf"
+          (change)="onFileChange($event)"
+        />
+        <div class="upload-message">
+          <mat-icon>upload</mat-icon>
+          <p>Drag & Drop your PDF here<br>or click to select</p>
+        </div>
+      </div>
+    }
     </section>
   </div>
 </main>

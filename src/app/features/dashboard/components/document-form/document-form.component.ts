@@ -17,6 +17,7 @@ import { MatIcon } from '@angular/material/icon';
 import { StatusChipComponent } from '../../../../shared/components/status-chip/status-chip.component';
 import { FormFieldComponent } from '../../../../shared/components/form-field/form-field.component';
 import { MatTooltip } from '@angular/material/tooltip';
+import { NotificationService } from '../../../../core/services/notification.service';
 
 @Component({
   selector: 'app-document-form',
@@ -45,7 +46,7 @@ import { MatTooltip } from '@angular/material/tooltip';
 export class DocumentFormComponent {
   private fb = inject(FormBuilder);
   private documentService = inject(DocumentService);
-  private snackbar = inject(MatSnackBar);
+  private notification = inject(NotificationService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private readonly MAX_FILE_SIZE_MB = 20;
@@ -87,7 +88,7 @@ export class DocumentFormComponent {
         this.form.get('file')?.updateValueAndValidity();
       },
       error: () => {
-        this.snackbar.open('Failed to load document.', 'Close', { duration: 3000 });
+        this.notification.show('Failed to load document.');
         this.router.navigate(['/dashboard']);
       }
     });
@@ -109,7 +110,7 @@ export class DocumentFormComponent {
       };
       fileReader.readAsDataURL(file);
     } else {
-      this.snackbar.open('Only PDF files are supported.', 'Close', { duration: 3000 });
+      this.notification.show('Only PDF files are supported.');
     }
   }
 
@@ -127,12 +128,12 @@ export class DocumentFormComponent {
     const file = this.selectedFile();
     if (file) {
       if (file.size > this.MAX_FILE_SIZE_MB * 1024 * 1024) {
-        this.snackbar.open(`File is too large. Max allowed is ${this.MAX_FILE_SIZE_MB} MB.`, 'Close', { duration: 3000 });
+        this.notification.show(`File is too large. Max allowed is ${this.MAX_FILE_SIZE_MB} MB.`);
         return;
       }
 
       if (!this.ALLOWED_FILE_TYPES.includes(file.type)) {
-        this.snackbar.open(`Unsupported file type: ${file.type}`, 'Close', { duration: 3000 });
+        this.notification.show(`Unsupported file type: ${file.type}`);
         return;
       }
     }
@@ -146,11 +147,11 @@ export class DocumentFormComponent {
 
     this.documentService.uploadDocument(formData).subscribe({
       next: res => {
-        this.snackbar.open(`Document saved with status "${status}" successfully.`, 'Close', { duration: 3000 });
+        this.notification.show(`Document saved with status "${status}" successfully.`);
         this.router.navigate(['/dashboard/document', res.id]);
       },
       error: () => {
-        this.snackbar.open('Failed to save document.', 'Close', { duration: 3000 });
+        this.notification.show('Failed to save document.');
       }
     });
   }
@@ -162,17 +163,17 @@ export class DocumentFormComponent {
       .pipe(
         switchMap(doc => {
           if (doc.status !== DocumentStatus.READY_FOR_REVIEW) {
-            this.snackbar.open('Document cannot be revoked because it is not ready for review.', 'Close', { duration: 3000 });
+            this.notification.show('Document cannot be revoked because it is not ready for review.');
             return EMPTY;
           }
           return this.documentService.revokeDocumentReview(this.documentId()!);
         }),
         tap(() => {
-          this.snackbar.open('Document revoked.', 'Close', { duration: 3000 });
+          this.notification.show('Document revoked.');
           this.loadDocument(this.documentId()!);
         }),
         catchError(() => {
-          this.snackbar.open('Failed to revoke or load document.', 'Close', { duration: 3000 });
+          this.notification.show('Failed to revoke or load document.');
           return EMPTY;
         })
       )
@@ -184,11 +185,11 @@ export class DocumentFormComponent {
 
     this.documentService.sendDocumentToReview(this.documentId()!).pipe(
       tap(() => {
-        this.snackbar.open('Document was sent to review.', 'Close', { duration: 3000 });
+        this.notification.show('Document was sent to review.');
         this.loadDocument(this.documentId()!);
       }),
       catchError(() => {
-        this.snackbar.open('Failed to send document to review.', 'Close', { duration: 3000 });
+        this.notification.show('Failed to send document to review.');
         return EMPTY;
       })
     ).subscribe()
@@ -199,11 +200,11 @@ export class DocumentFormComponent {
 
     this.documentService.deleteDocument(this.documentId()!).subscribe({
       next: () => {
-        this.snackbar.open('Document deleted.', 'Close', { duration: 3000 });
+        this.notification.show('Document deleted.');
         this.router.navigate(['/dashboard']);
       },
       error: () => {
-        this.snackbar.open('Failed to delete.', 'Close', { duration: 3000 });
+        this.notification.show('Failed to delete.');
       }
     });
   }
@@ -275,12 +276,12 @@ export class DocumentFormComponent {
     if (newName && this.documentId()) {
       this.documentService.updateDocumentName(this.documentId()!, newName).subscribe({
         next: () => {
-          this.snackbar.open('Document name updated.', 'Close', { duration: 3000 });
+          this.notification.show('Document name updated.');
           this.isRenaming.set(false);
           this.loadDocument(this.documentId()!);
         },
         error: () => {
-          this.snackbar.open('Failed to update name.', 'Close', { duration: 3000 });
+          this.notification.show('Failed to update name.');
         }
       });
     }
@@ -291,11 +292,11 @@ export class DocumentFormComponent {
 
     this.documentService.changeDocumentStatus(this.documentId()!, newStatus).subscribe({
       next: () => {
-        this.snackbar.open(`Status changed to ${newStatus}`, 'Close', { duration: 3000 });
+        this.notification.show(`Status changed to ${newStatus}`);
         this.loadDocument(this.documentId()!);
       },
       error: () => {
-        this.snackbar.open('Failed to change status.', 'Close', { duration: 3000 });
+        this.notification.show('Failed to change status.');
       }
     });
   }
@@ -323,7 +324,7 @@ export class DocumentFormComponent {
         };
         fileReader.readAsDataURL(file);
       } else {
-        this.snackbar.open('Only PDF files are supported.', 'Close', { duration: 3000 });
+        this.notification.show('Only PDF files are supported.');
       }
     }
 

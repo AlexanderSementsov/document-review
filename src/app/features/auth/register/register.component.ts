@@ -9,7 +9,7 @@ import {
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { FormFieldComponent } from '../../../shared/components/form-field/form-field.component';
 import { AuthService } from '../../../core/services/auth.service';
 import { TokenService } from '../../../core/services/token.service';
@@ -19,6 +19,7 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatOption, MatSelect } from '@angular/material/select';
 import { UserRole } from '../../../shared/enums/user-role.enum';
+import { NotificationService } from '../../../core/services/notification.service';
 
 @Component({
   standalone: true,
@@ -42,7 +43,7 @@ export class RegisterComponent {
   private authService = inject(AuthService);
   private tokenService = inject(TokenService);
   protected router = inject(Router);
-  private snackbar = inject(MatSnackBar);
+  private notification = inject(NotificationService);
 
   readonly roles = [
     { value: UserRole.USER, label: 'User' },
@@ -88,7 +89,7 @@ export class RegisterComponent {
         this.router.navigate(['/dashboard']);
       }),
       catchError(() => {
-        this.snackbar.open('Registration failed. Please try again.', 'Close', { duration: 3000 });
+        this.notification.show('Registration failed. Please try again.');
         return of(null);
       }),
       finalize(() => this.isLoading.set(false))

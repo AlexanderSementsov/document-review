@@ -33,6 +33,7 @@ import { catchError, combineLatest, EMPTY, switchMap } from 'rxjs';
 import { StatusChipComponent } from '../../../../shared/components/status-chip/status-chip.component';
 import { formatStatus } from '../../../../shared/utils/status-format';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { NotificationService } from '../../../../core/services/notification.service';
 
 @Component({
   standalone: true,
@@ -73,10 +74,10 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
 export class DocumentGridComponent {
   private readonly documentService = inject(DocumentService);
   private readonly router = inject(Router);
-  private readonly snackbar = inject(MatSnackBar);
-
   protected readonly isReviewer = authStore.isReviewer;
   protected readonly user = authStore.user;
+
+  private notification = inject(NotificationService);
 
   readonly data = signal<DocumentResDto[]>([]);
   readonly isLoading = signal(true);
@@ -127,7 +128,7 @@ export class DocumentGridComponent {
             creatorId: this.isReviewer() ? uuid?.trim() || undefined : undefined,
           }).pipe(
             catchError(err => {
-              console.error('Document loading failed', err);
+              this.notification.show('Document loading failed', err);
               this.data.set([]);
               this.totalCount.set(0);
               this.isLoading.set(false);
@@ -141,12 +142,13 @@ export class DocumentGridComponent {
           this.data.set(res.results);
           this.totalCount.set(res.count);
           this.isLoading.set(false);
-          this.snackbar.open('Documents loaded.', 'Close', { duration: 3000 });
+          this.notification.show('Documents loaded.');
         },
-        error: () => {
+        error: (err) => {
           this.data.set([]);
           this.totalCount.set(0);
           this.isLoading.set(false);
+          this.notification.show('Error: ', err);
         }
       });
   }
@@ -193,11 +195,11 @@ export class DocumentGridComponent {
     if (id && (row.status === DocumentStatus.DRAFT || row.status === DocumentStatus.REVOKE)) {
       this.documentService.deleteDocument(id).subscribe({
         next: () => {
-          this.snackbar.open('Document deleted.', 'Close', { duration: 3000 });
+          this.notification.show('Document deleted.');
           this.query.set({ ...this.query(), page: 1 });
         },
-        error: () => {
-          this.snackbar.open('Failed to delete document.', 'Close', { duration: 3000 });
+        error: (err) => {
+          this.notification.show('Failed to delete document.', err);
         }
       });
     }

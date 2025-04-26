@@ -4,11 +4,12 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { TokenService } from '../../../core/services/token.service';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { authStore } from '../../../core/auth/auth.store';
 import { FormFieldComponent } from '../../../shared/components/form-field/form-field.component';
 import { catchError, finalize, of, switchMap, tap } from 'rxjs';
+import { NotificationService } from '../../../core/services/notification.service';
 
 @Component({
   standalone: true,
@@ -28,7 +29,7 @@ export class LoginComponent {
   private authService = inject(AuthService);
   private tokenService = inject(TokenService);
   protected router = inject(Router);
-  private snackbar = inject(MatSnackBar);
+  private notification = inject(NotificationService);
 
   isLoading = signal(false);
 
@@ -55,12 +56,10 @@ export class LoginComponent {
 
       catchError(err => {
         this.tokenService.clearToken();
-        this.snackbar.open(
+        this.notification.show(
           err.status === 401
             ? 'Invalid email or password.'
-            : 'Login failed. Please try again.',
-          'Close',
-          { duration: 3000 }
+            : 'Login failed. Please try again.'
         );
         return of(null);
       }),

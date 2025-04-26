@@ -34,7 +34,7 @@
               <mat-icon class="save-name-button" (click)="saveNewName()">edit_document</mat-icon>
             } @else {
               <span (click)="startRenaming()" class="document-title"
-                    [matTooltip]="userRole() === 'USER' ? 'Click to edit document name' : 'Document Name' ">
+                    [matTooltip]="canRename() ? 'Click to edit document name' : 'Document Name' ">
                 <span style="font-weight: bold">Title: </span>
                 {{ form.get('name')?.value }}
               </span>

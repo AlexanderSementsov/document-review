@@ -79,7 +79,7 @@ export class DocumentGridComponent {
   protected readonly user = authStore.user;
 
   readonly data = signal<DocumentResDto[]>([]);
-  readonly isLoading = signal(false);
+  readonly isLoading = signal(true);
   readonly totalCount = signal(0);
 
   readonly creatorEmail = signal('');
@@ -141,6 +141,7 @@ export class DocumentGridComponent {
           this.data.set(res.results);
           this.totalCount.set(res.count);
           this.isLoading.set(false);
+          this.snackbar.open('Documents loaded.', 'Close', { duration: 3000 });
         },
         error: () => {
           this.data.set([]);
@@ -148,6 +149,10 @@ export class DocumentGridComponent {
           this.isLoading.set(false);
         }
       });
+  }
+
+  reloadDocuments(): void {
+    this.query.set({...this.query()})
   }
 
   toggleSort(field: 'name' | 'status' | 'updatedAt') {

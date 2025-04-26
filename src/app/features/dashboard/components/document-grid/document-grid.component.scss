@@ -60,6 +60,20 @@
   margin: 20px;
   border-radius: 10px;
   padding: 10px;
+
+  .title-row {
+    display: flex;
+    justify-content: space-between;
+
+    .refresh-button {
+      margin: 8px 12px 0 0;
+      cursor: pointer;
+
+      &:hover {
+        color: rgba(252, 184, 17, 0.85);
+      }
+    }
+  }
 }
 
 .action-buttons {
@@ -115,12 +129,19 @@
   }
 }
 
-.empty-message {
+.empty-message, .loading-message {
   text-align: center;
   padding: 2rem;
   font-size: 1rem;
   color: variables.$color-muted;
   font-style: italic;
+}
+
+.loading-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
 }
 
 mat-paginator {

@@ -32,7 +32,11 @@
 </div>
 
 <div class="table-container">
-  <h6>Document List</h6>
+  <div class="title-row">
+    <h6>Document List</h6>
+    <mat-icon class="refresh-button" (click)="reloadDocuments()">refresh</mat-icon>
+  </div>
+
   <section class="table-wrapper mat-elevation-z8">
     <mat-table [dataSource]="data()" class="mat-elevation-z8">
       <ng-container matColumnDef="name">
@@ -107,12 +111,18 @@
 
       <mat-header-row  *matHeaderRowDef="displayedColumns(); sticky: true"></mat-header-row>
       <mat-row  *matRowDef="let row; columns: displayedColumns();"></mat-row>
-
     </mat-table>
 
     @if (!data().length && !isLoading()) {
       <div class="empty-message">
         No documents found.
+      </div>
+    }
+
+    @if (!data().length && isLoading()) {
+      <div class="loading-message">
+        <mat-spinner diameter="40" strokeWidth="4"></mat-spinner>
+        <span>Loading...</span>
       </div>
     }
   </section>

@@ -101,18 +101,7 @@ export class DocumentFormComponent {
 
   onFileChange(event: Event) {
     const file = (event.target as HTMLInputElement)?.files?.[0];
-    if (file && file.type === 'application/pdf') {
-      this.selectedFile.set(file);
-      this.form.get('file')?.setValue(file);
-
-      const fileReader = new FileReader();
-      fileReader.onload = () => {
-        this.fileUrl.set(fileReader.result as string);
-      };
-      fileReader.readAsDataURL(file);
-    } else {
-      this.notification.show('Only PDF files are supported.');
-    }
+    this.setFile(file);
   }
 
   saveAsDraft() {
@@ -167,7 +156,7 @@ export class DocumentFormComponent {
       .pipe(
         switchMap(doc => {
           if (doc.status !== DocumentStatus.READY_FOR_REVIEW) {
-            this.notification.show('Document cannot be revoked because it is not ready for review.');
+            this.notification.show('Document is not ready for review.');
             return EMPTY;
           }
           return this.documentService.revokeDocumentReview(this.documentId()!);
@@ -177,7 +166,7 @@ export class DocumentFormComponent {
           this.loadDocument(this.documentId()!);
         }),
         catchError(() => {
-          this.notification.show('Failed to revoke or load document.');
+          this.notification.show('Failed to revoke document.');
           return EMPTY;
         })
       )
@@ -225,7 +214,7 @@ export class DocumentFormComponent {
       this.isEditMode() &&
       data &&
       this.userRole() === UserRole.USER &&
-      (data.status === DocumentStatus.DRAFT || data.status === DocumentStatus.REVOKE)
+      [DocumentStatus.DRAFT, DocumentStatus.REVOKE].includes(data?.status!)
     );
   });
 
@@ -255,7 +244,7 @@ export class DocumentFormComponent {
       this.isEditMode() &&
       data &&
       this.userRole() === UserRole.USER &&
-      (data.status === DocumentStatus.DRAFT || data.status === DocumentStatus.REVOKE)
+      [DocumentStatus.DRAFT, DocumentStatus.REVOKE].includes(data?.status!)
     );
   });
 
@@ -322,26 +311,31 @@ export class DocumentFormComponent {
   onDropFile(event: DragEvent) {
     event.preventDefault();
     event.stopPropagation();
+    const file = event.dataTransfer?.files?.[0];
+    this.setFile(file);
+  }
 
-    const files = event.dataTransfer?.files;
-    if (files && files.length > 0) {
-      const file = files[0];
+  private setFile(file?: File) {
+    if (!file) return;
 
-      if (file?.type === 'application/pdf') {
-        this.selectedFile.set(file);
-        this.form.get('file')?.setValue(file);
-
-        const fileReader = new FileReader();
-        fileReader.onload = () => {
-          this.fileUrl.set(fileReader.result as string);
-        };
-        fileReader.readAsDataURL(file);
-      } else {
-        this.notification.show('Only PDF files are supported.');
-      }
+    if (file.size > this.MAX_FILE_SIZE_MB * 1024 * 1024) {
+      this.notification.show(`File is too large. Max allowed is 20 MB.`);
+      return;
     }
 
+    if (!this.ALLOWED_FILE_TYPES.includes(file.type)) {
+      this.notification.show(`Unsupported file type: ${file.type}`);
+      return;
+    }
 
+    this.selectedFile.set(file);
+    this.form.get('file')?.setValue(file);
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.fileUrl.set(reader.result as string);
+    };
+    reader.readAsDataURL(file);
   }
 
   protected readonly DocumentStatus = DocumentStatus;

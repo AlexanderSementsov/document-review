@@ -88,8 +88,8 @@ export class RegisterComponent {
         authStore.setUser(user);
         this.router.navigate(['/dashboard']);
       }),
-      catchError(() => {
-        this.notification.show('Registration failed. Please try again.');
+      catchError((err) => {
+        this.notification.show('Registration failed. Please try again. ', err?.error?.message || '');
         return of(null);
       }),
       finalize(() => this.isLoading.set(false))

@@ -38,6 +38,10 @@
     [error]="'Passwords must match'"
   />
 
+  <div class="error" *ngIf="confirmPasswordError">
+    Passwords do not match
+  </div>
+
   <div class="form-field">
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Role</mat-label>

@@ -7,7 +7,7 @@ import { SortDocumentsEnum } from '../../../../shared/enums/sort-documents.enum'
 
 import { DatePipe, NgForOf, NgIf } from '@angular/common';
 import { MatToolbar } from '@angular/material/toolbar';
-import { MatFormField, MatLabel } from '@angular/material/form-field';
+import { MatFormField, MatHint, MatLabel } from '@angular/material/form-field';
 import { MatOption, MatSelect } from '@angular/material/select';
 import { MatProgressBar } from '@angular/material/progress-bar';
 import {
@@ -30,12 +30,14 @@ import { UserRole } from '../../../../shared/enums/user-role.enum';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { MatIcon } from '@angular/material/icon';
 import { catchError, combineLatest, EMPTY, switchMap } from 'rxjs';
+import { StatusChipComponent } from '../../../../shared/components/status-chip/status-chip.component';
+import { formatStatus } from '../../../../shared/utils/status-format';
 
 @Component({
   standalone: true,
   selector: 'app-document-grid',
-  templateUrl: 'document-grid.component.html',
-  styleUrls: ['document-grid.component.scss'],
+  templateUrl: './document-grid.component.html',
+  styleUrls: ['./document-grid.component.scss'],
   imports: [
     MatToolbar,
     MatLabel,
@@ -60,7 +62,9 @@ import { catchError, combineLatest, EMPTY, switchMap } from 'rxjs';
     MatHeaderRowDef,
     MatPaginator,
     MatIcon,
-    MatIconButton
+    MatIconButton,
+    MatHint,
+    StatusChipComponent
   ]
 })
 export class DocumentGridComponent {
@@ -89,9 +93,12 @@ export class DocumentGridComponent {
     this.isReviewer() ? ['name', 'status', 'creatorEmail', 'updatedAt', 'actions'] : ['name', 'status', 'updatedAt', 'actions']
   );
 
-  readonly statusOptions = this.user()?.role === 'USER' ?
-    Object.values(DocumentStatus) :
-    Object.values(DocumentStatus).filter(status => status !== DocumentStatus.DRAFT);
+  readonly statusOptions = Object.values(DocumentStatus)
+    .filter(status => this.user()?.role === 'USER' || status !== DocumentStatus.DRAFT)
+    .map(status => ({
+      label: formatStatus(status),
+      value: status,
+    }));
 
   constructor() {
     const query$ = toObservable(this.query);
@@ -146,7 +153,7 @@ export class DocumentGridComponent {
     const newSort = !current || !current.startsWith(field)
       ? `${field}, asc`
       : isAsc
-        ? `${field}, desc`
+        ? null // seems that back-end handle only one sort direction. We can add `${field}, desc` and proper icon after BE fix
         : null;
 
     this.query.set({ ...this.query(), sort: newSort as SortDocumentsEnum | null, page: 1 });

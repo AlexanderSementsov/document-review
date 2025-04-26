@@ -1,0 +1,77 @@
+@use 'variables';
+.layout-wrapper {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.content.page-container {
+  flex: 1;
+}
+
+.app-header {
+  height: variables.$header-height;
+  background-color: variables.$color-dark;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  color: lighten(variables.$color-dark, 50%);
+  font-family: variables.$font-family-base;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 500;
+    margin: 0;
+  }
+
+  button {
+    background-color: variables.$color-dark;
+    color: variables.$color-primary;
+    font-weight: bold;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+
+    &:hover {
+      background-color: lighten(variables.$color-dark, 8%);
+    }
+  }
+
+  @media (max-width: 600px) {
+    height: 56px;
+    padding: 0 1rem;
+
+    h1 {
+      font-size: 1.2rem;
+    }
+
+    button {
+      padding: 0.4rem 0.8rem;
+      font-size: 0.85rem;
+    }
+  }
+}
+
+.app-footer {
+  height: 60px;
+  background-color: variables.$color-dark;
+  color: lighten(variables.$color-dark, 50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: variables.$font-family-base;
+  font-size: 0.9rem;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.2);
+  flex-shrink: 0;
+
+  @media (max-width: 600px) {
+    height: 50px;
+    font-size: 0.75rem;
+    padding: 0 1rem;
+    text-align: center;
+  }
+}

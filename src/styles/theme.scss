@@ -1,0 +1,17 @@
+@import './variables';
+@import './mixins';
+@import './material-theme';
+
+body {
+  margin: 0;
+  font-family: $font-family-base;
+  background-color: $color-secondary;
+  color: $color-dark;
+  min-height: 100vh;
+}
+
+button {
+  font-family: $font-family-base;
+  border-radius: $border-radius;
+  transition: background-color 0.3s, color 0.3s;
+}

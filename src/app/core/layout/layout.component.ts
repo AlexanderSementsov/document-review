@@ -9,11 +9,14 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule, HeaderComponent, FooterComponent, RouterOutlet],
   template: `
-    <app-header />
-    <main class="content">
-      <router-outlet></router-outlet>
-    </main>
-    <app-footer />
+    <div class="layout-wrapper">
+      <app-header />
+      <main class="content page-container">
+        <router-outlet />
+      </main>
+      <app-footer />
+    </div>
   `,
+  styleUrls: ['./layout.component.scss']
 })
 export class LayoutComponent {}

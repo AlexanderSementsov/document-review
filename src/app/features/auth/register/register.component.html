@@ -1,4 +1,7 @@
-<form [formGroup]="form" (ngSubmit)="onSubmit()" class="register-form">
+<div class="login-container">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="register-form">
+  <h3 class="title">Sign Up</h3>
+
   <app-form-field
     [formGroup]="form"
     [controlName]="'fullName'"
@@ -34,9 +37,6 @@
     [type]="'password'"
     [error]="'Passwords must match'"
   />
-  <div class="error" *ngIf="confirmPasswordError">
-    Passwords do not match
-  </div>
 
   <div class="form-field">
     <mat-form-field appearance="outline" class="full-width">
@@ -65,3 +65,4 @@
     Back to login
   </button>
 </form>
+</div>

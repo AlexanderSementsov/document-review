@@ -22,7 +22,8 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
     @if (control?.invalid && control?.dirty) {
       <div class="error">{{ error() }}</div>
     }
-  `
+  `,
+  styleUrls: ['form-field.component.scss']
 })
 export class FormFieldComponent {
   label = input('');

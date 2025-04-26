@@ -1,0 +1,73 @@
+@use 'variables' as *;
+
+.register-form {
+  border: 1px solid;
+
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 2rem;
+  background-color: $color-secondary;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 450px;
+  margin: 4rem auto;
+  font-family: $font-family-base;
+
+  .form-field {
+    width: 100%;
+
+    .mat-form-field {
+      width: 100%;
+    }
+  }
+
+  .error {
+    font-size: 0.8rem;
+    color: $color-danger;
+    margin-top: -1rem;
+    margin-bottom: 1rem;
+    text-align: left;
+  }
+
+  .register-button {
+    background-color: $color-primary;
+    color: $color-dark;
+    font-weight: bold;
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: $font-family-base;
+    transition: background-color 0.3s;
+
+    &:hover:enabled {
+      background-color: rgba(252, 184, 17, 0.8);
+    }
+
+    &:disabled {
+      background-color: rgba(252, 184, 17, 0.6);
+      cursor: not-allowed;
+    }
+  }
+
+  .back-button {
+    background-color: transparent;
+    color: $color-dark;
+    border: 1px solid $color-dark;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: $font-family-base;
+    transition: background-color 0.3s, color 0.3s;
+
+    &:hover {
+      background-color: $color-dark;
+      color: $color-light;
+    }
+  }
+
+  .title {
+    text-align: center;
+  }
+}

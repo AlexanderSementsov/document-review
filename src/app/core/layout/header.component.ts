@@ -15,6 +15,7 @@ import { authStore } from '../auth/auth.store';
       <button mat-button (click)="logout()">Logout</button>
     </header>
   `,
+  styleUrls: ['./layout.component.scss']
 })
 export class HeaderComponent {
   private tokenService = inject(TokenService);

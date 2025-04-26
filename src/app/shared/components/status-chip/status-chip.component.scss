@@ -1,0 +1,54 @@
+@use 'variables' as *;
+
+mat-chip {
+  min-width: 125px;
+  font-weight: 500;
+  font-size: 0.75rem;
+  height: 26px;
+  padding: 0 12px;
+  border-radius: 8px;
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: $font-family-base;
+  border: 1px solid currentColor;
+  --mdc-chip-label-text-color: currentColor;
+
+  .dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 10px;
+  }
+}
+
+.draft {
+  border-color: $color-muted;
+  background: $color-muted;
+}
+
+.revoke {
+  border-color: $color-danger;
+  background: $color-danger;
+}
+
+.ready {
+  border-color: $color-primary;
+  background: $color-primary;
+}
+
+.under-review {
+  border-color: $color-primary;
+  background: $color-primary;
+}
+
+.approved {
+  border-color: #4caf50;
+  background: #4caf50;
+}
+
+.declined {
+  border-color: $color-danger;
+  background: $color-danger;
+}

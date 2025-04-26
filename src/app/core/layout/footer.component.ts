@@ -10,5 +10,6 @@ import { CommonModule } from '@angular/common';
       <small>Document Review 2025</small>
     </footer>
   `,
+  styleUrls: ['./layout.component.scss']
 })
 export class FooterComponent {}

@@ -1,0 +1,72 @@
+@use '@angular/material' as mat;
+@use 'variables';
+
+:root {
+  @include mat.chips-overrides((
+    outline-width: 0,
+    container-shape-radius: 12px,
+    label-text-color: variables.$color-dark,
+    selected-label-text-color: variables.$color-dark,
+  ));
+}
+
+.mat-form-field-appearance-outline .mat-form-field-outline {
+  color: variables.$color-muted;
+}
+
+.mat-form-field-appearance-outline .mat-form-field-outline-thick {
+  color: variables.$color-primary;
+}
+
+mat-form-field {
+  min-width: 180px;
+  background: #fff;
+
+  .mat-mdc-form-field-subscript-wrapper {
+    display: none;
+  }
+}
+
+.mat-form-field {
+  font-family: variables.$font-family-base;
+  width: 100%;
+
+
+  .mat-form-field-wrapper {
+    padding: 0.5rem 0 0.5rem 0;
+  }
+
+  .mat-form-field-flex {
+    background-color: variables.$color-light;
+    border-radius: variables.$border-radius;
+    border: 1px solid variables.$color-muted;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    padding: 0 1rem;
+  }
+
+  .mat-form-field-infix {
+    padding: 1rem 0;
+    font-size: 1rem;
+    color: variables.$color-dark;
+  }
+
+  .mat-form-field-label {
+    color: variables.$color-muted;
+    font-weight: 400;
+    font-size: 0.9rem;
+  }
+
+  &.mat-focused .mat-form-field-flex {
+    border-color: variables.$color-primary;
+    box-shadow: 0 0 0 2px rgba(252, 184, 17, 0.2);
+  }
+
+  .mat-form-field-subscript-wrapper {
+    padding: 0.25rem 0 0;
+  }
+
+  .mat-error {
+    color: variables.$color-danger;
+    font-size: 0.8rem;
+  }
+}

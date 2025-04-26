@@ -2,7 +2,6 @@ import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule, NgIf } from '@angular/common';
 import { DocumentService } from '../../../../core/services/document.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatButton, MatFabButton, MatIconButton } from '@angular/material/button';
 import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
@@ -18,6 +17,8 @@ import { StatusChipComponent } from '../../../../shared/components/status-chip/s
 import { FormFieldComponent } from '../../../../shared/components/form-field/form-field.component';
 import { MatTooltip } from '@angular/material/tooltip';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { ConfirmService } from '../../../../core/services/confirm.service';
+import { formatStatus } from '../../../../shared/utils/status-format';
 
 @Component({
   selector: 'app-document-form',
@@ -47,6 +48,7 @@ export class DocumentFormComponent {
   private fb = inject(FormBuilder);
   private documentService = inject(DocumentService);
   private notification = inject(NotificationService);
+  private confirmService = inject(ConfirmService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private readonly MAX_FILE_SIZE_MB = 20;
@@ -56,7 +58,6 @@ export class DocumentFormComponent {
     name: ['', Validators.required],
     file: [null, Validators.required]
   });
-
 
   readonly userRole = computed(() => authStore.user()?.role || null);
 
@@ -156,8 +157,11 @@ export class DocumentFormComponent {
     });
   }
 
-  revokeDocument() {
+  async revokeDocument() {
     if (!this.documentId()) return;
+
+    const confirmed = await this.confirmService.confirm('Are you sure you want to revoke this document?');
+    if (!confirmed) return;
 
     this.documentService.getDocumentById(this.documentId()!)
       .pipe(
@@ -180,8 +184,11 @@ export class DocumentFormComponent {
       .subscribe();
   }
 
-  sendToReview() {
+  async sendToReview() {
     if (!this.documentId()) return;
+
+    const confirmed = await this.confirmService.confirm('Are you sure you want to send to review this document?');
+    if (!confirmed) return;
 
     this.documentService.sendDocumentToReview(this.documentId()!).pipe(
       tap(() => {
@@ -195,8 +202,11 @@ export class DocumentFormComponent {
     ).subscribe()
   }
 
-  deleteDocument() {
+  async deleteDocument() {
     if (!this.documentId() || !this.canDelete()) return;
+
+    const confirmed = await this.confirmService.confirm('Are you sure you want to delete this document?');
+    if (!confirmed) return;
 
     this.documentService.deleteDocument(this.documentId()!).subscribe({
       next: () => {
@@ -287,8 +297,11 @@ export class DocumentFormComponent {
     }
   }
 
-  changeStatus(newStatus: ReviewerDocumentStatus) {
+  async changeStatus(newStatus: ReviewerDocumentStatus) {
     if (!this.documentId()) return;
+
+    const confirmed = await this.confirmService.confirm(`Are you sure you want to change document status to ${formatStatus(newStatus)}?`);
+    if (!confirmed) return;
 
     this.documentService.changeDocumentStatus(this.documentId()!, newStatus).subscribe({
       next: () => {

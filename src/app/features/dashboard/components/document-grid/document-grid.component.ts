@@ -34,6 +34,7 @@ import { StatusChipComponent } from '../../../../shared/components/status-chip/s
 import { formatStatus } from '../../../../shared/utils/status-format';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { ConfirmService } from '../../../../core/services/confirm.service';
 
 @Component({
   standalone: true,
@@ -74,6 +75,7 @@ import { NotificationService } from '../../../../core/services/notification.serv
 export class DocumentGridComponent {
   private readonly documentService = inject(DocumentService);
   private readonly router = inject(Router);
+  private confirmService = inject(ConfirmService);
   protected readonly isReviewer = authStore.isReviewer;
   protected readonly user = authStore.user;
 
@@ -191,7 +193,10 @@ export class DocumentGridComponent {
     }
   }
 
-  removeDocument(id: string, row: DocumentResDto): void {
+  async removeDocument(id: string, row: DocumentResDto) {
+    const confirmed = await this.confirmService.confirm('Are you sure you want to delete this document?');
+    if (!confirmed) return;
+
     if (id && (row.status === DocumentStatus.DRAFT || row.status === DocumentStatus.REVOKE)) {
       this.documentService.deleteDocument(id).subscribe({
         next: () => {

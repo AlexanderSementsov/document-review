@@ -1,4 +1,6 @@
 @use 'variables';
+@use 'mixins' as mixins;
+
 .layout-wrapper {
   height: 100vh;
   display: flex;
@@ -24,6 +26,18 @@
     font-size: 1.5rem;
     font-weight: 500;
     margin: 0;
+  }
+
+  .right-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .user-info {
+    @include mixins.text-truncate();
+    width: 200px;
+    font-size: 0.95rem;
   }
 
   button {

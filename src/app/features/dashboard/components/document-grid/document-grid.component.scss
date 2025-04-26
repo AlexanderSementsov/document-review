@@ -15,6 +15,7 @@
   .filter-inputs {
     display: flex;
     gap: 1rem;
+    flex-wrap: wrap;
   }
 
   mat-form-field {
@@ -36,8 +37,16 @@
 }
 
 .table-wrapper {
-  max-height: 540px;
-  overflow: auto;
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+
+  mat-table {
+    min-width: 800px;
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: auto;
+  }
 
   .mat-mdc-header-row {
     background: variables.$color-header;
